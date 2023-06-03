@@ -1,0 +1,92 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
+
+class CurrencyConverterGUI extends JFrame {
+    private final String[] currencies = {"USD-US", "EUR-EU", "GBP-UK", "INR-INDIA", "JPY-JAPAN", "CAD-CANADA", "AUD-AUSTRALIA", "CHF-SWISS", "CNY-CHINESE", "SEK-SWEDEN"};
+    private final double[] conversionRates = {1.0, 0.93, 0.81, 82.62, 140.24, 1.36, 1.53, 0.90, 7.08, 10.84};
+    private JComboBox<String> fromCurrencyComboBox;
+    private JComboBox<String> toCurrencyComboBox;
+    private JTextField amountTextField;
+    private JLabel resultLabel;
+
+    public CurrencyConverterGUI() {
+        setTitle("Currency Converter");
+        setSize(800, 200);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
+
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new FlowLayout());
+
+        JLabel amountLabel = new JLabel("Amount:");
+        amountTextField = new JTextField(10);
+        topPanel.add(amountLabel);
+        topPanel.add(amountTextField);
+
+        JLabel fromCurrencyLabel = new JLabel("From:");
+        fromCurrencyComboBox = new JComboBox<>(currencies);
+        topPanel.add(fromCurrencyLabel);
+        topPanel.add(fromCurrencyComboBox);
+
+        JLabel toCurrencyLabel = new JLabel("To:");
+        toCurrencyComboBox = new JComboBox<>(currencies);
+        topPanel.add(toCurrencyLabel);
+        topPanel.add(toCurrencyComboBox);
+
+        JButton convertButton = new JButton("Convert");
+        resultLabel = new JLabel();
+        convertButton.addActionListener(new ConvertButtonListener());
+        topPanel.add(convertButton);
+        topPanel.add(resultLabel);
+
+        add(topPanel, BorderLayout.NORTH);
+    }
+
+    private class ConvertButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String fromCurrency = (String) fromCurrencyComboBox.getSelectedItem();
+            String toCurrency = (String) toCurrencyComboBox.getSelectedItem();
+            double amount = Double.parseDouble(amountTextField.getText());
+
+            double convertedAmount = convertCurrency(fromCurrency, toCurrency, amount);
+
+            DecimalFormat decimalFormat = new DecimalFormat("#.##");
+            String result = decimalFormat.format(amount) + " " + fromCurrency + " = "
+                    + decimalFormat.format(convertedAmount) + " " + toCurrency;
+            resultLabel.setText(result);
+        }
+    }
+
+    private double convertCurrency(String fromCurrency, String toCurrency, double amount) {
+        int fromIndex = getIndex(fromCurrency);
+        int toIndex = getIndex(toCurrency);
+
+        double fromRate = conversionRates[fromIndex];
+        double toRate = conversionRates[toIndex];
+
+        return (amount / fromRate) * toRate;
+    }
+
+    private int getIndex(String currency) {
+        for (int i = 0; i < currencies.length; i++) {
+            if (currencies[i].equals(currency)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                CurrencyConverterGUI currencyConverterGUI = new CurrencyConverterGUI();
+                currencyConverterGUI.setVisible(true);
+            }
+        });
+    }
+}
